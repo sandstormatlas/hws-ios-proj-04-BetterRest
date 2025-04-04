@@ -17,19 +17,73 @@ struct ContentView: View {
             VStack {
                 Spacer()
                 Section("Wake Time") {
-                    Text("When do you want to wake up?")
-                        .font(.headline)
-                        .padding()
-                    DatePicker(
-                        "Please enter a time", selection: $wakeUp,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .labelsHidden()
-                    Spacer()
+                    VStack {
+                        Text("When do you want to wake up?")
+                            .font(.headline)
+                            .padding()
+                        DatePicker(
+                            "Please enter a time", selection: $wakeUp,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                    }
+                    .background(.thinMaterial)
+                    .overlay(
+                        Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
                 }
+                Spacer()
+                Section("Sleep Amount") {
+                    VStack {
+                        Text("Desired amount of sleep?")
+                            .font(.headline)
+                            .padding()
+                        Stepper(
+                            "\(sleepAmount.formatted()) hours",
+                            value: $sleepAmount,
+                            in: 4...12, step: 0.25
+                        )
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                    }
+                    .background(.thinMaterial)
+                    .overlay(
+                        Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
+                }
+                .padding(.horizontal)
+                Spacer()
+                Section("Coffee Intake") {
+                    VStack {
+                        Text("Daily Coffee Intake")
+                            .font(.headline)
+                            .padding()
+                        Stepper(
+                            "\(coffeeAmount) cups", value: $coffeeAmount,
+                            in: 1...20
+                        )
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                    }
+                    .background(.thinMaterial)
+                    .overlay(Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
+                }
+                .padding(.horizontal)
+                Spacer()
+            }
+            .navigationTitle(Text("BetterRest"))
+            .toolbar {
+                Button("Calculate", action: calculateBedtime)
             }
         }
+        Spacer()
+        Spacer()
+        Spacer()
     }
+}
+
+func calculateBedtime() {
+
 }
 
 #Preview {
