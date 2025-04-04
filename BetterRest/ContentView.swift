@@ -9,7 +9,7 @@ import CoreML
 import SwiftUI
 
 struct ContentView: View {
-    @State private var wakeUp = Date.now
+    @State private var wakeUp = defaultWakeTime
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
 
@@ -17,12 +17,18 @@ struct ContentView: View {
     @State private var alertMessage = ""
     @State private var showingAlert = false
 
+    static var defaultWakeTime: Date {
+        var components = DateComponents()
+        components.hour = 7
+        components.minute = 0
+        return Calendar.current.date(from: components) ?? .now
+    }
+
     var body: some View {
         NavigationStack {
-            VStack {
-                Spacer()
+            Form {
                 Section("Wake Time") {
-                    VStack {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text("When do you want to wake up?")
                             .font(.headline)
                             .padding()
@@ -38,9 +44,10 @@ struct ContentView: View {
                     .overlay(
                         Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
                 }
-                Spacer()
+                .padding(.horizontal)
+
                 Section("Sleep Amount") {
-                    VStack {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text("Desired amount of sleep?")
                             .font(.headline)
                             .padding()
@@ -57,14 +64,17 @@ struct ContentView: View {
                         Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
                 }
                 .padding(.horizontal)
-                Spacer()
+
                 Section("Coffee Intake") {
-                    VStack {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text("Daily Coffee Intake")
                             .font(.headline)
                             .padding()
                         Stepper(
-                            "\(coffeeAmount) cups", value: $coffeeAmount,
+//                            "\(coffeeAmount) cup\(coffeeAmount == 1 ? "" : "s")",
+                            // Use swift format string to inflect "cup" based on coffeeAmount
+                            "^[\(coffeeAmount) cup](inflect: true)",
+                            value: $coffeeAmount,
                             in: 1...20
                         )
                         .padding(.horizontal)
@@ -75,7 +85,7 @@ struct ContentView: View {
                         Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
                 }
                 .padding(.horizontal)
-                Spacer()
+
             }
             .navigationTitle(Text("BetterRest"))
             .toolbar {
@@ -87,9 +97,6 @@ struct ContentView: View {
         } message: {
             Text(alertMessage)
         }
-        Spacer()
-        Spacer()
-        Spacer()
     }
 
     func calculateBedtime() {
