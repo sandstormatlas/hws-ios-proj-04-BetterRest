@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var wakeUp = defaultWakeTime
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
+    @State private var idealBedtime = defaulSleepTime
 
     @State private var alertTitle = ""
     @State private var alertMessage = ""
@@ -23,10 +24,31 @@ struct ContentView: View {
         components.minute = 0
         return Calendar.current.date(from: components) ?? .now
     }
-
+    
+    static var defaulSleepTime: Date {
+        var components = DateComponents()
+        components.hour = 22
+        components.minute = 0
+        return Calendar.current.date(from: components) ?? .now - 60 * 60 * 8
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
+                Section("Your ideal bedtime is") {
+                    HStack(alignment: .center, spacing: 0) {
+                        Spacer()
+                        Text(idealBedtime.formatted(date: .omitted, time: .shortened))
+                            .font(.largeTitle)
+                        Spacer()
+                    }
+                    .padding(.top)
+                    .padding(.bottom)
+                    .background(.thinMaterial)
+                    .overlay(
+                        Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
+                }
+                .padding(.horizontal)
                 Section("Wake Time") {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("When do you want to wake up?")
@@ -39,6 +61,9 @@ struct ContentView: View {
                         .labelsHidden()
                         .padding(.horizontal)
                         .padding(.bottom)
+                        .onChange(of: wakeUp) { _, _ in
+                            calculateBedtime()
+                        }
                     }
                     .background(.thinMaterial)
                     .overlay(
@@ -58,6 +83,9 @@ struct ContentView: View {
                         )
                         .padding(.horizontal)
                         .padding(.bottom)
+                        .onChange(of: sleepAmount) { _, _ in
+                            calculateBedtime()
+                        }
                     }
                     .background(.thinMaterial)
                     .overlay(
@@ -79,18 +107,21 @@ struct ContentView: View {
                         )
                         .padding(.horizontal)
                         .padding(.bottom)
+                        .onChange(of: coffeeAmount) { _, _ in
+                            calculateBedtime()
+                        }
                     }
                     .background(.thinMaterial)
                     .overlay(
                         Rectangle().stroke(style: StrokeStyle(lineWidth: 1)))
                 }
                 .padding(.horizontal)
-
             }
             .navigationTitle(Text("BetterRest"))
-            .toolbar {
-                Button("Calculate", action: calculateBedtime)
-            }
+            .navigationBarTitleDisplayMode(.inline)
+//            .toolbar {
+//                Button("Calculate", action: calculateBedtime)
+//            }
         }
         .alert(alertTitle, isPresented: $showingAlert) {
             Button("Ok") {}
@@ -110,15 +141,16 @@ struct ContentView: View {
             let prediction = try model.prediction(
                 wake: Double(hour + minute), estimatedSleep: sleepAmount,
                 coffee: Double(coffeeAmount))
-            let sleepTime = wakeUp - prediction.actualSleep
+//            let sleepTime = wakeUp - prediction.actualSleep
+            idealBedtime = wakeUp - prediction.actualSleep
             alertTitle = "Your ideal bedtime is "
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+//            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
         } catch {
             // Some error takes us here..
             alertTitle = "Error"
             alertMessage = "Something went wrong calculating your bedtime."
+            showingAlert = true
         }
-        showingAlert = true
     }
 }
 
